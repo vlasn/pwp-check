@@ -30,7 +30,12 @@ const navigateAndGetValue = async (page, dciNumber) => {
     await page.goto(`http://www.wizards.com/Magic/PlaneswalkerPoints/${dciNumber}`, { waitUntil: 'networkidle0' })
     await page.evaluate(() => ShowPointHistoryModal('Yearly'))
     await t(timeout)
-    const points = await page.evaluate(() => document.querySelector('#YearlyValue > div:nth-child(5) > div.PointsValue').innerText)
+    const points = await page.evaluate(() => {
+        const rows = document.querySelectorAll('.CompetitivePointsRow')
+        const [seasonRow] =  Array.from(rows).map(e => e.children).filter(([season,pts]) => season.innerText === 'May 29, 2017 - May 27, 2018') || []
+        const [x,pointsElement] = seasonRow
+        return pointsElement.innerText || 0
+    })
     return points
 }
 
